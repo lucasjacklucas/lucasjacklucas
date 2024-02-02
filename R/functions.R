@@ -327,3 +327,25 @@ propreg <- function(bf.obj, model.dat, id_var,iterations){
   drawres <- t(apply(drawres,MARGIN=2,qtiles))
   data.frame(var = rownames(drawres), lwr = drawres[,1], med = drawres[,2], upr = drawres[,3])
 }
+
+relplot <- function(x,y,data,facet){
+  if(missing(facet)){
+  tmp <- data %>%
+    dplyr::select(x = all_of(x),
+                  y = all_of(y))
+  ggplot(tmp, aes(x=x, y=y)) +
+    geom_point(shape=1) + geom_smooth() +
+    theme_minimal() + theme(panel.border = element_rect(fill=NA, linewidth = 0.5)) +
+    xlab(x) + ylab(y)
+  } else {
+    tmp <- data %>%
+      dplyr::select(x = all_of(x),
+                    y = all_of(y),
+                    groupvar = all_of(facet))
+    ggplot(tmp, aes(x=x, y=y)) +
+      geom_point(shape=1) + geom_smooth() +
+      theme_minimal() + theme(panel.border = element_rect(fill=NA, linewidth = 0.5)) +
+      xlab(x) + ylab(y) + facet_wrap(~groupvar) +
+      ggtitle(paste("Facet Var=",paste(facet),sep=""))
+  }
+}
