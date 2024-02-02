@@ -1,5 +1,3 @@
-#test update
-
 latentvar <- function(data.name){
   # load packages
   library(R2jags)
