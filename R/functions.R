@@ -284,7 +284,7 @@ linreg <- function(regdat){
   tidymod <- tidy(mod, conf.int=T) %>% mutate(sig = ifelse(p.value<0.05,1,0)) %>%
     filter(term!="(Intercept)")
   dvname <- colnames(regdat[1])
-  modplot <- ggplot(tidymod, aes(x=term,y=estimate,ymin=conf.low, ymax=conf.high)) +
+  modplot <- ggplot(tidymod, aes(x=reorder(term,estimate),y=estimate,ymin=conf.low, ymax=conf.high)) +
     geom_hline(yintercept=0, linetype="dotted") +
     xlab("") + ylab("") +
     geom_pointrange() + coord_flip() +
