@@ -349,3 +349,4 @@ relplot <- function(x,y,data,facet){
       ggtitle(paste("Facet Var=",paste(facet),sep=""))
   }
 }
+
