@@ -294,6 +294,6 @@ linreg <- function(regdat){
   print(summary(regdat))
   print(model.info)
   stargazer(mod, type="text")
-  list(model = mod, tidymodel = tidymod, modelplot = modplot)
   plot(modplot)
+  list(model = mod, tidymodel = tidymod, modelplot = modplot)
 }
