@@ -297,3 +297,33 @@ linreg <- function(regdat){
   plot(modplot)
   list(model = mod, tidymodel = tidymod, modelplot = modplot)
 }
+
+propreg <- function(bf.obj, model.dat, id_var,iterations){
+  library(fastDummies)
+  library(MASS)
+  library(progress)
+  my_formula <- function(colPosition, trainSet){
+    dep_part<- paste(colnames(trainSet)[colPosition],"~",sep=" ")
+    ind_part<- paste(colnames(trainSet)[-colPosition],collapse=" + ")
+    dt_formula<- as.formula(paste(dep_part,ind_part,sep=" "))
+    return(dt_formula)
+  }
+  draws <- bf.obj$alldraws
+  cols <- sample(2:ncol(draws),size=iterations,replace=F)
+  drawres <- NULL
+  pb <- progress_bar$new(total = iterations)
+  for(i in 1:iterations){
+    pb$tick()
+    tmp <- draws %>% dplyr::select(1, latent = cols[i])
+    tmp <- left_join(tmp, model.dat, by=id_var) %>%
+      dplyr::select(all_of(colnames(model.dat)),latent) %>%
+      dplyr::select(-all_of(id_var)) %>% na.omit()
+    tmp <- fastDummies::dummy_cols(tmp,remove_first_dummy = T, remove_selected_columns = T)
+    modelform <- my_formula(1,tmp)
+    mod <- lm(modelform, data=tmp)
+    drawres <- rbind(drawres, MASS::mvrnorm(n=1,mu=coef(mod),Sigma=vcov(mod)))
+  }
+  qtiles <- function(x){quantile(x, probs=c(0.025,0.5,0.975))}
+  drawres <- t(apply(drawres,MARGIN=2,qtiles))
+  data.frame(var = rownames(drawres), lwr = drawres[,1], med = drawres[,2], upr = drawres[,3])
+}
